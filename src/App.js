@@ -21,7 +21,10 @@ export default class App extends React.Component {
       }
     ],
     newUserName: "",
-    newUserEmail: ""
+    newUserEmail: "",
+    userBeingEdited: null,
+    modifiedUserName: "",
+    modifiedEmail: ""
   };
 
   renderAddUser() {
@@ -52,6 +55,9 @@ export default class App extends React.Component {
         {this.state.users.map((user) => {
           return (
             <React.Fragment key={user._id}>
+
+              {!this.state.userBeingEdited || this.state.userBeingEdited._id !== user._id? 
+              
               <div class="box">
                 <h3>{user.name}</h3>
                 <h4>{user.email}</h4>
@@ -70,6 +76,18 @@ export default class App extends React.Component {
                   Delete
                 </button>
               </div>
+
+              :
+              
+              <div class="box">
+                <input type='text' placeholder="User" name='modifiedUserName' value={this.state.modifiedUserName} onChange={this.updateFormField}/>
+                <input type='text' placeholder="Email" name='modifiedEmail' value={this.state.modifiedEmail} onChange={this.updateFormField}/>
+                <button onClick={this.updateUser}>Update</button>
+              </div>
+            
+              }
+
+              
             </React.Fragment>
           );
         })}
@@ -98,7 +116,25 @@ export default class App extends React.Component {
     });
   };
 
-  beginEdit = (user) => {};
+  beginEdit = (user) => {
+      this.setState({
+        userBeingEdited: user,
+        modifiedUserName: user.name,
+        modifiedEmail: user.email
+      })
+  };
+
+  updateUser = () => {
+
+    let index = this.state.users.findIndex(user => user._id === this.state.userBeingEdited._id)
+
+    let clonedUser = {...this.state.userBeingEdited, name:this.state.modifiedUserName , email: this.state.modifiedEmail} 
+
+    this.setState({
+      users: [...this.state.users.slice(0, index), clonedUser, ...this.state.users.slice(index + 1)],
+      userBeingEdited: null
+    })
+  }
 
   deleteUser = (user) => {};
 }
