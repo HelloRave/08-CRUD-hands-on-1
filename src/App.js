@@ -24,7 +24,9 @@ export default class App extends React.Component {
     newUserEmail: "",
     userBeingEdited: null,
     modifiedUserName: "",
-    modifiedEmail: ""
+    modifiedEmail: "",
+    userBeingDeleted: null,
+    deletingUser: ''
   };
 
   renderAddUser() {
@@ -58,25 +60,35 @@ export default class App extends React.Component {
 
               {!this.state.userBeingEdited || this.state.userBeingEdited._id !== user._id? 
               
+              (!this.state.userBeingDeleted || this.state.userBeingDeleted._id !== user._id?
               <div class="box">
-                <h3>{user.name}</h3>
-                <h4>{user.email}</h4>
-                <button
-                  onClick={() => {
-                    this.beginEdit(user);
-                  }}
-                >
-                  Update
-                </button>
-                <button
-                  onClick={() => {
-                    this.deleteUser(user);
-                  }}
-                >
-                  Delete
-                </button>
+              <h3>{user.name}</h3>
+              <h4>{user.email}</h4>
+              <button
+                onClick={() => {
+                  this.beginEdit(user);
+                }}
+              >
+                Update
+              </button>
+              <button
+                onClick={() => {
+                  this.beginDelete(user);
+                }}
+              >
+                Delete
+              </button>
+            </div>
+              
+              :
+              
+              <div class="box">
+                <p>Confirm to delete {this.state.deletingUser}</p>
+                <button onClick={() => {this.deleteUser(user)}}>Yes</button>
               </div>
-
+              
+              )
+              
               :
               
               <div class="box">
@@ -124,6 +136,13 @@ export default class App extends React.Component {
       })
   };
 
+  beginDelete = (user) => {
+    this.setState({
+      userBeingDeleted: user,
+      deletingUser: user.name
+    })
+  }
+
   updateUser = () => {
 
     let index = this.state.users.findIndex(user => user._id === this.state.userBeingEdited._id)
@@ -136,5 +155,13 @@ export default class App extends React.Component {
     })
   }
 
-  deleteUser = (user) => {};
+  deleteUser = (user) => {
+    let index = this.state.users.findIndex((u) => u._id === user._id)
+
+    this.setState({
+      users: [...this.state.users.slice(0, index), ...this.state.users.slice(index + 1)],
+      userBeingDeleted: null
+    })
+
+  };
 }
